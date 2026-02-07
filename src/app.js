@@ -19,6 +19,8 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 import userRouter from "./routes/user.routes.js";
+import taskRouter from "./routes/task.routes.js";
 
 app.use("/api/v1/users",userRouter)
+app.use("/api/v1/tasks",taskRouter)
 export default app

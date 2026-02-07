@@ -27,6 +27,12 @@ const taskSchema = new Schema(
       default: "Medium"
     },
 
+    prioritySource: {
+      type: String,
+      enum: ["AUTO", "MANUAL"],
+      default: "AUTO"
+    },
+    
     dueDate: {
       type: Date,
       required: true
