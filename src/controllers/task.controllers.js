@@ -161,7 +161,41 @@ const updateTask = asyncHandler(async (req,res)=>{
     )
 })
 
+const deleteTask = asyncHandler(async (req,res)=>{
+    const {taskId} = req.params;
+
+    if (!taskId || !mongoose.Types.ObjectId.isValid(taskId)) {
+        throw new ApiError(400, "Invalid task Id");
+    }
+
+    const task = await Task.findById(taskId);
+    
+    if(!task)
+    {
+        throw new ApiError(404, "task not found!")
+    }
+
+    if(task.userId.toString()!== req.user?._id.toString())
+    {
+        throw new ApiError(403, "you are not authorised to delete this task!")
+    }
+
+    await task.deleteOne();
+
+    return res.status(200).json(
+        new ApiResponse(200,
+            {},
+            "Task deleted successfully!"
+        )
+    )
+
+})
+
+
+
+
 export {
     createTask,
-    updateTask
+    updateTask,
+    deleteTask
 }

@@ -1,4 +1,5 @@
 import { User } from "../models/user.models.js"
+import { Task } from "../models/task.models.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiErrors.js"
 import jwt from "jsonwebtoken"
@@ -180,9 +181,59 @@ const logoutUser = asyncHandler(async (req,res)=>{
 
 })
 
+const fetchUserTasks = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+
+    const tasks = await Task.find({ userId }).lean();
+
+    if(!tasks || !tasks.length)
+    {
+        return res.status(200).json(new ApiResponse(200,{},"No tasks for this user yet!"))
+    }
+
+    const now = new Date();
+
+    const getDerivedStatusRank = (task) => {
+        const isOverdue =
+            task.status !== "Completed" &&
+            new Date(task.dueDate) < now;
+
+        if (isOverdue) return 1;
+        if (task.status === "In progress") return 2;
+        if (task.status === "Pending") return 3;
+        return 4; // Completed task
+    };
+
+    const getPriorityRank = (priority) => {
+        if (priority === "High") return 1;
+        if (priority === "Medium") return 2;
+        return 3; // Low
+    };
+
+    tasks.sort((a, b) => {
+        // Derived status order
+        const statusDiff =
+            getDerivedStatusRank(a) - getDerivedStatusRank(b);
+        if (statusDiff !== 0) return statusDiff;
+
+        // Priority order
+        const priorityDiff =
+            getPriorityRank(a.priority) - getPriorityRank(b.priority);
+        if (priorityDiff !== 0) return priorityDiff;
+
+        // Due date (earliest first)
+        return new Date(a.dueDate) - new Date(b.dueDate);
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, tasks, "Tasks fetched successfully")
+    );
+});
+
 export {generateAccessAndRefreshToken, 
     registerUser,
     refreshAccessToken,
     loginUser,
-    logoutUser
+    logoutUser,
+    fetchUserTasks
 }
