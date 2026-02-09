@@ -15,7 +15,7 @@ userRouter.route("/login").post(loginUser)
 
 //secured routes
 userRouter.route("/logout").post(verifyJWT,logoutUser)
-userRouter.route("refreshToken").post(refreshAccessToken)
+userRouter.route("/refreshToken").post(refreshAccessToken)
 userRouter.route("/get-tasks").get(verifyJWT, fetchUserTasks)
 
 export default userRouter
