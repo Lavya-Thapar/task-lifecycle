@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./middlewares/error.middlewares.js";
 
 const app = express()
 
@@ -29,4 +30,7 @@ import taskRouter from "./routes/task.routes.js";
 
 app.use("/api/v1/users",userRouter)
 app.use("/api/v1/tasks",taskRouter)
+
+app.use(errorHandler);
+
 export default app
