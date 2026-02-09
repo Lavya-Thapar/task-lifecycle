@@ -89,16 +89,16 @@ const updateTask = asyncHandler(async (req,res)=>{
         throw new ApiError(400," some field must be present for updation!")
     }
 
-    if(dueDate)
-    {
+    if(dueDate) {
         const parsedDueDate = new Date(dueDate);
-
         if (isNaN(parsedDueDate.getTime())) {
-        throw new ApiError(400,"invalid due date!")
+            throw new ApiError(400,"invalid due date!")
         }
-
-        if (parsedDueDate <= new Date()) {
-        throw new ApiError(400, "due date must be in future!")
+        
+        const isDifferentDate = task.dueDate.toISOString() !== parsedDueDate.toISOString();
+        
+        if (isDifferentDate && parsedDueDate <= new Date()) {
+             throw new ApiError(400, "due date must be in future!")
         }
     }
 

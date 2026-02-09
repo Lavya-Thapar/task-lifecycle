@@ -4,6 +4,12 @@ import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
 const userRouter = Router()
 
+userRouter.get("/me", verifyJWT, (req, res) => {
+  res.status(200).json({
+    user: req.user
+  });
+});
+
 userRouter.route("/register").post(registerUser)
 userRouter.route("/login").post(loginUser)
 
