@@ -89,20 +89,25 @@ const updateTask = asyncHandler(async (req,res)=>{
         throw new ApiError(400," some field must be present for updation!")
     }
 
+    let isDueDateActuallyChanged = false;
+
     if(dueDate) {
         const parsedDueDate = new Date(dueDate);
         if (isNaN(parsedDueDate.getTime())) {
             throw new ApiError(400,"invalid due date!")
         }
         
-        const isDifferentDate = task.dueDate.toISOString() !== parsedDueDate.toISOString();
-        
-        if (isDifferentDate && parsedDueDate <= new Date()) {
-             throw new ApiError(400, "due date must be in future!")
+        if (task.dueDate.toISOString() !== parsedDueDate.toISOString()) {
+             // Only throw 'future' error if it is a NEW date
+             if (parsedDueDate <= new Date()) {
+                  throw new ApiError(400, "due date must be in future!")
+             }
+             task.dueDate = parsedDueDate;
+             isDueDateActuallyChanged = true;
         }
     }
 
-    const isDueDateUpdated = Boolean(dueDate);
+    //const isDueDateUpdated = Boolean(dueDate);
     const isPriorityProvided = Boolean(priority);
 
     if (title !== undefined) {
@@ -130,11 +135,6 @@ const updateTask = asyncHandler(async (req,res)=>{
         }
     }
 
-
-    if (isDueDateUpdated) {
-        task.dueDate = new Date(dueDate);
-    }
-
     // PRIORITY LOGIC 
     if (isPriorityProvided) {
         // Manual override
@@ -144,7 +144,7 @@ const updateTask = asyncHandler(async (req,res)=>{
         task.priority = priority;
         task.prioritySource = "MANUAL";
 
-    } else if (isDueDateUpdated) {
+    } else if (isDueDateActuallyChanged) {
         // Resume AUTO mode if due date changes
         task.priority = calculatePriorityFromDueDate(task.dueDate);
         task.prioritySource = "AUTO";
