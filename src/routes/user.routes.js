@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, refreshAccessToken, loginUser, logoutUser, fetchUserTasks} from "../controllers/user.controllers.js";
+import { registerUser, refreshAccessToken, loginUser, logoutUser, fetchUserTasks, fetchUserDetails} from "../controllers/user.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
 const userRouter = Router()
@@ -17,5 +17,6 @@ userRouter.route("/login").post(loginUser)
 userRouter.route("/logout").post(verifyJWT,logoutUser)
 userRouter.route("/refreshToken").post(refreshAccessToken)
 userRouter.route("/get-tasks").get(verifyJWT, fetchUserTasks)
+userRouter.route("/fetch-details").get(verifyJWT, fetchUserDetails)
 
 export default userRouter

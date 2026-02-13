@@ -233,10 +233,31 @@ const fetchUserTasks = asyncHandler(async (req, res) => {
     );
 });
 
+const fetchUserDetails = asyncHandler(async (req,res)=>{
+    const userId = req.user?._id;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ApiError(400, "Invalid user Id");
+    }
+
+    const user = await User.findById(userId).select("-refreshToken -password");
+
+    if(!user)
+    {
+        throw new ApiError(400, "No user with this id found!")
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, user, "user details fetched successfully!")
+    )
+
+})
+
 export {generateAccessAndRefreshToken, 
     registerUser,
     refreshAccessToken,
     loginUser,
     logoutUser,
-    fetchUserTasks
+    fetchUserTasks,
+    fetchUserDetails
 }
